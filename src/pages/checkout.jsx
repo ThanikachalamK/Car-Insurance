@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import classNames from "classnames";
 import {
@@ -16,6 +16,7 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import _get from "lodash.get";
 import Input from "../components/core/form-controls/Input";
+// import Checkbox from "../components/core/form-controls/Checkbox";
 import { phoneRegExp, cardRegExp, cvvRegExp } from "../constants/common";
 
 const AddressSchema = Yup.object().shape({
@@ -44,6 +45,7 @@ const PaymentSchema = Yup.object().shape({
     .min(3, "CVV Number is too short")
     .max(3, "CVV Number is too long"),
   fullName: Yup.string().required("Full Name is required"),
+  // checkTnC: Yup.string().required("Terms and Condition is required"),
 });
 
 const LoginStep = () => {
@@ -208,6 +210,7 @@ const AddressStep = () => {
 const PaymentStep = () => {
   const { shippingAddress, paymentInfo } = useContext(CheckoutStateContext);
   const checkoutDispatch = useContext(CheckoutDispatchContext);
+  const [isSigned, setIsSigned] = useState(true);
   const handleBackToAddress = () => {
     setCheckoutStep(checkoutDispatch, CHECKOUT_STEPS.SHIPPING);
   };
@@ -260,7 +263,11 @@ const PaymentStep = () => {
               type="text"
               placeholder="Full Name"
               component={Input}
-            />``
+            />
+            <section>
+              <input type='checkbox' name='T&C' checked={isSigned} onChange={() => setIsSigned(!isSigned)} />
+              Terms and Condition
+            </section>
             <div className="actions">
               <button
                 type="button"
@@ -269,7 +276,7 @@ const PaymentStep = () => {
               >
                 <i className="rsc-icon-arrow_back" /> Back to Shipping Details
               </button>
-              <button type="submit">
+              <button disabled={!isSigned} type="submit">
                 Save Payment
                 <i className="rsc-icon-arrow_forward" />
               </button>
